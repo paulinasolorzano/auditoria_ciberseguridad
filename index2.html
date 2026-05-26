@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auditoría de Ciberseguridad — Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f8f9fc;
+    --surface2: #f0f2f8;
+    --border: #dde1ef;
+    --accent: #0a7c52;
+    --accent2: #2d5be3;
+    --warn: #b36a00;
+    --danger: #cc2b45;
+    --text: #1a1d2e;
+    --muted: #6b7298;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* HEADER */
+  .top-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-icon {
+    width: 22px; height: 22px;
+    background: var(--accent);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon svg { width: 13px; height: 13px; }
+  .top-actions { display: flex; gap: 8px; align-items: center; }
+  .btn-sm {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: #00c988; color: #ffffff; border-color: #00c988; }
+
+  /* HERO */
+  .hero {
+    padding: 3rem 2rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .hero p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 560px;
+  }
+  .norm-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .norm-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 3px;
+    border: 1px solid;
+    letter-spacing: 0.06em;
+  }
+  .nb-green { border-color: #00e5a044; color: #00e5a0; background: #00e5a008; }
+  .nb-blue  { border-color: #4f7cff44; color: #4f7cff; background: #4f7cff08; }
+  .nb-warn  { border-color: #ffb34744; color: #ffb347; background: #ffb34708; }
+  .nb-red   { border-color: #ff537044; color: #ff5370; background: #ff537008; }
+
+  /* PROGRESS */
+  .progress-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem 1.5rem;
+  }
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    align-items: center;
+  }
+  .score-circle {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .score-pct {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1;
+  }
+  .score-of {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  .progress-info {}
+  .bar-track {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--accent);
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  .risk-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* TABS */
+  .tabs-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    overflow-x: auto;
+  }
+  .tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+  .tab {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--surface2);
+    color: var(--muted);
+  }
+  .tab.active .tab-count { background: #00e5a020; color: var(--accent); }
+
+  /* CONTENT */
+  .content-area {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 4rem;
+  }
+  .domain-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+  .domain-icon {
+    width: 36px; height: 36px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+  }
+  .domain-title { font-size: 16px; font-weight: 600; color: var(--text); }
+  .domain-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+  .items-list {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s;
+    position: relative;
+  }
+  .item:last-child { border-bottom: none; }
+  .item:hover { background: var(--surface2); }
+  .item.checked { background: #00e5a006; }
+  .item.checked::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+  }
+  .cb {
+    width: 18px; height: 18px;
+    border-radius: 3px;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .item.checked .cb {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+  }
+  .item-body { flex: 1; }
+  .item-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+  .item.checked .item-title { color: var(--muted); }
+  .item-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px; }
+  .pill {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid;
+    letter-spacing: 0.04em;
+  }
+  .p-norm { border-color: #4f7cff44; color: #4f7cff; background: #4f7cff0a; }
+  .p-alta { border-color: #ff537044; color: #ff5370; background: #ff53700a; }
+  .p-media { border-color: #ffb34744; color: #ffb347; background: #ffb3470a; }
+  .p-baja { border-color: #00e5a044; color: #00e5a0; background: #00e5a00a; }
+  .item-hint {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+    padding-left: 0;
+    font-style: italic;
+  }
+
+  /* PRINT / REPORT */
+  #report-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #1a1d2ecc;
+    z-index: 200;
+    padding: 2rem;
+    overflow-y: auto;
+  }
+  .modal-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    font-family: var(--mono);
+    color: var(--accent);
+  }
+  .close-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+  .close-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .report-block { margin-bottom: 1.5rem; }
+  .report-block h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .report-item {
+    font-size: 12px;
+    color: var(--text);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .report-item:last-child { border-bottom: none; }
+  .r-bullet { color: var(--danger); font-size: 16px; line-height: 1; }
+  .r-ok .r-bullet { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 20px; }
+    .progress-card { grid-template-columns: 1fr; }
+    .score-circle { display: none; }
+    .top-bar { padding: 0 1rem; }
+    .hero, .progress-section, .tabs-wrap, .content-area { padding-left: 1rem; padding-right: 1rem; }
+  }
+  @media print {
+    .top-bar, .btn-sm, #report-modal { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6.5 1L11 4V9L6.5 12L2 9V4L6.5 1Z" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="6.5" cy="6.5" r="1.5" fill="#ffffff"/>
+      </svg>
+    </div>
+    SEC_AUDIT.CHECKLIST
+  </div>
+  <div class="top-actions">
+    <button class="btn-sm" onclick="resetAll()">↺ Reiniciar</button>
+    <button class="btn-sm btn-primary" onclick="showReport()">Ver reporte</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-tag">// Herramienta de auditoría</div>
+  <h1>Checklist de Ciberseguridad<br>para Empresas</h1>
+  <p>40 controles mínimos organizados en 6 dominios. Marca cada control cumplido para obtener el nivel de riesgo y generar un reporte de hallazgos.</p>
+  <div class="norm-badges">
+    <span class="norm-badge nb-green">ISO 27001</span>
+    <span class="norm-badge nb-blue">OWASP Top 10</span>
+    <span class="norm-badge nb-warn">NIST CSF</span>
+    <span class="norm-badge nb-red">GDPR / LFPDPPP</span>
+    <span class="norm-badge nb-blue">CIS Controls</span>
+  </div>
+</div>
+
+<div class="progress-section">
+  <div class="progress-card">
+    <div class="score-circle" id="scoreCircle">
+      <span class="score-pct" id="scorePct">0%</span>
+      <span class="score-of" id="scoreOf">0/40</span>
+    </div>
+    <div class="progress-info">
+      <div class="bar-track"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+      <div class="bar-labels">
+        <span id="barLeft">0 controles cumplidos</span>
+        <span id="barRight">40 pendientes</span>
+      </div>
+    </div>
+    <div class="risk-label" id="riskLabel" style="background:#ff537015;color:#ff5370;border:1px solid #ff537030">
+      Sin evaluar
+    </div>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs" id="tabsEl"></div>
+</div>
+
+<div class="content-area" id="contentArea"></div>
+
+<!-- MODAL REPORTE -->
+<div id="report-modal">
+  <div class="modal-inner">
+    <div class="modal-header">
+      <h2>// Reporte de hallazgos</h2>
+      <button class="close-btn" onclick="closeReport()">✕ cerrar</button>
+    </div>
+    <div id="report-body"></div>
+    <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn-sm" onclick="window.print()">Imprimir</button>
+      <button class="btn-sm btn-primary" onclick="closeReport()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const domains = [
+  {
+    id:"iam", label:"Identidad y accesos", icon:"🔑", color:"#00e5a0",
+    desc:"Control de usuarios, privilegios y autenticación",
+    items:[
+      {t:"Política de contraseñas robusta (mín. 12 chars, complejidad requerida)", norm:"ISO 27001 A.9", crit:"alta", hint:"Verificar en AD/LDAP o gestor de identidades"},
+      {t:"Autenticación multifactor (MFA) habilitada en sistemas críticos", norm:"NIST 800-63", crit:"alta", hint:"Mínimo en VPN, correo corporativo y paneles de administración"},
+      {t:"Principio de mínimo privilegio aplicado a usuarios y sistemas", norm:"ISO 27001 A.9.2", crit:"alta", hint:"Revisar roles y permisos por usuario/grupo; nadie debe tener más acceso del necesario"},
+      {t:"Revisión periódica de cuentas activas y proceso de offboarding", norm:"ISO 27001 A.9.2.6", crit:"media", hint:"Proceso documentado para dar de baja cuentas de empleados que salen"},
+      {t:"Cuentas privilegiadas (admin) separadas de cuentas de trabajo diario", norm:"CIS Control 5", crit:"alta", hint:"No usar la misma cuenta de administrador para tareas cotidianas"},
+      {t:"Inventario de usuarios y roles actualizado (incluye terceros)", norm:"ISO 27001 A.8.1", crit:"media", hint:"Debe incluir accesos a sistemas de terceros y contratistas"}
+    ]
+  },
+  {
+    id:"net", label:"Red y perímetro", icon:"🌐", color:"#4f7cff",
+    desc:"Segmentación, firewall, VPN y monitoreo de red",
+    items:[
+      {t:"Firewall perimetral configurado con reglas documentadas (denegar por defecto)", norm:"ISO 27001 A.13", crit:"alta", hint:"Auditar reglas abiertas; documentar cada excepción con justificación"},
+      {t:"Segmentación de red por función y criticidad (VLANs)", norm:"NIST CSF PR.AC-5", crit:"alta", hint:"Separar red de producción, corporativa, DMZ, servidores e IoT"},
+      {t:"Acceso remoto mediante VPN con cifrado fuerte (TLS 1.2+ / IKEv2)", norm:"ISO 27001 A.6.2.2", crit:"alta", hint:"No permitir SSL ni TLS antiguo; deshabilitar versiones vulnerables"},
+      {t:"Sistema IDS/IPS activo para detección de intrusiones", norm:"ISO 27001 A.12.4", crit:"media", hint:"Al menos monitoreo pasivo en red interna; alertas configuradas"},
+      {t:"Escaneos de vulnerabilidades de red realizados periódicamente", norm:"CIS Control 7", crit:"media", hint:"Herramientas recomendadas: Nessus Essentials, OpenVAS, Qualys"},
+      {t:"Puertos y servicios innecesarios cerrados en todos los sistemas", norm:"CIS Control 4", crit:"alta", hint:"Resultado de nmap debe mostrar solo los puertos estrictamente necesarios"}
+    ]
+  },
+  {
+    id:"app", label:"Aplicaciones", icon:"⚙️", color:"#bf7fff",
+    desc:"Seguridad en el desarrollo y despliegue de software",
+    items:[
+      {t:"Validación y sanitización de todas las entradas de usuario en APIs y formularios", norm:"OWASP A03", crit:"alta", hint:"Previene SQLi, XSS y command injection; usar listas blancas, no negras"},
+      {t:"Autenticación y autorización robusta en cada endpoint de la aplicación", norm:"OWASP A01/A07", crit:"alta", hint:"Tokens JWT firmados con expiración, sesiones correctamente invalidadas"},
+      {t:"Cifrado de datos sensibles en tránsito — HTTPS/TLS 1.2+ obligatorio", norm:"OWASP A02", crit:"alta", hint:"Verificar con SSL Labs; HTTP debe redirigir a HTTPS; no mezclar contenido"},
+      {t:"Cifrado de datos sensibles en reposo (contraseñas, PII, datos financieros)", norm:"ISO 27001 A.10", crit:"alta", hint:"Contraseñas con bcrypt/argon2; campos PII cifrados en base de datos"},
+      {t:"Gestión de dependencias de terceros con análisis de vulnerabilidades (SCA)", norm:"OWASP A06", crit:"alta", hint:"Usar Dependabot, Snyk u OWASP Dependency-Check en el pipeline de CI/CD"},
+      {t:"Logs de actividad y auditoría activos en la aplicación", norm:"OWASP A09", crit:"media", hint:"Registrar logins, errores, acciones críticas con timestamp y usuario"},
+      {t:"Headers de seguridad HTTP correctamente configurados", norm:"OWASP A05", crit:"media", hint:"CSP, X-Frame-Options, HSTS, X-Content-Type-Options, Referrer-Policy"},
+      {t:"Gestión segura de secretos — sin credenciales en el código fuente", norm:"OWASP A02", crit:"alta", hint:"Usar vault, variables de entorno o secrets manager; nunca hardcoded en repo"}
+    ]
+  },
+  {
+    id:"data", label:"Protección de datos", icon:"🗄️", color:"#ffb347",
+    desc:"Privacidad, retención, backups y cumplimiento normativo",
+    items:[
+      {t:"Inventario de activos de información y datos personales (registro de tratamiento)", norm:"GDPR Art.30 / LFPDPPP", crit:"alta", hint:"¿Qué datos se recopilan, dónde se almacenan, quién los accede y por qué?"},
+      {t:"Aviso/política de privacidad publicada, accesible y actualizada", norm:"GDPR Art.13 / LFPDPPP", crit:"alta", hint:"Debe indicar finalidad, responsable, derechos del titular y plazo de conservación"},
+      {t:"Procedimiento de respuesta a brechas de datos documentado y conocido", norm:"GDPR Art.33", crit:"alta", hint:"Notificación en ≤72 hrs a la autoridad competente; proceso interno definido"},
+      {t:"Política de retención y eliminación segura de datos implementada", norm:"ISO 27001 A.8.3", crit:"media", hint:"No conservar datos más tiempo del necesario; eliminación certificada"},
+      {t:"Acuerdos de procesamiento de datos (DPA) firmados con proveedores terceros", norm:"GDPR Art.28", crit:"media", hint:"Proveedores cloud, SaaS y outsourcing deben firmar DPA antes de acceder a datos"},
+      {t:"Backups cifrados, almacenados off-site y probados periódicamente", norm:"ISO 27001 A.12.3", crit:"alta", hint:"Verificar restauración real (drill); documentar RTO y RPO del proceso"}
+    ]
+  },
+  {
+    id:"ops", label:"Operaciones", icon:"🛡️", color:"#ff5370",
+    desc:"Parches, endpoints, incidentes y continuidad",
+    items:[
+      {t:"Gestión de parches: actualizaciones críticas aplicadas en ≤30 días", norm:"CIS Control 7", crit:"alta", hint:"Ventana de mantenimiento definida; proceso de aprobación y rollback documentado"},
+      {t:"Antivirus o EDR instalado, actualizado y con alertas activas en endpoints", norm:"CIS Control 10", crit:"alta", hint:"Verificar cobertura de todos los dispositivos, versión de firmas y consola centralizada"},
+      {t:"Plan de continuidad de negocio y recuperación ante desastres (BCP/DRP)", norm:"ISO 22301 / ISO 27001 A.17", crit:"media", hint:"RTO y RPO definidos por sistema; simulacro documentado al menos una vez al año"},
+      {t:"Proceso de gestión de incidentes de seguridad documentado y conocido", norm:"ISO 27001 A.16", crit:"alta", hint:"Canal de reporte, clasificación de severidad, escalamiento y post-mortem obligatorio"},
+      {t:"Monitoreo centralizado de logs con retención mínima de 90 días", norm:"NIST CSF DE.AE", crit:"media", hint:"SIEM o solución equivalente; alertas correlacionadas para eventos críticos"},
+      {t:"Inventario de activos de hardware y software actualizado", norm:"CIS Control 1 & 2", crit:"media", hint:"Incluir estado de parche, propietario, ubicación y criticidad de cada activo"}
+    ]
+  },
+  {
+    id:"human", label:"Factor humano", icon:"👥", color:"#ff79b0",
+    desc:"Capacitación, concienciación y procesos con personas",
+    items:[
+      {t:"Capacitación anual en ciberseguridad para todos los empleados", norm:"ISO 27001 A.7.2.2", crit:"media", hint:"Incluir: phishing, contraseñas seguras, clasificación de datos y manejo de incidentes"},
+      {t:"Simulacros de phishing realizados al menos dos veces al año", norm:"NIST CSF PR.AT", crit:"media", hint:"Medir tasa de clics; brindar formación inmediata a quienes caen"},
+      {t:"Política de escritorio limpio y bloqueo automático de pantalla", norm:"ISO 27001 A.11.2", crit:"baja", hint:"Documentada, comunicada y verificada en auditorías físicas"},
+      {t:"Proceso de onboarding y offboarding seguro documentado", norm:"ISO 27001 A.7.1", crit:"media", hint:"Alta y baja de accesos desde el primer/último día; firma de acuerdos de confidencialidad"},
+      {t:"Acuerdos de confidencialidad (NDA) firmados por empleados y contratistas", norm:"ISO 27001 A.13.2.4", crit:"media", hint:"Obligatorio para todo el que tenga acceso a datos, código o infraestructura"},
+      {t:"Canal oficial y documentado para reportar sospechas o incidentes de seguridad", norm:"ISO 27001 A.16.1.2", crit:"media", hint:"Email dedicado, formulario interno o línea directa al equipo de seguridad"}
+    ]
+  }
+];
+
+const checked = {};
+let activeDomain = "iam";
+
+function totalItems(){ return domains.reduce((s,d)=>s+d.items.length,0); }
+function totalChecked(){ return Object.values(checked).filter(Boolean).length; }
+
+function updateProgress(){
+  const t=totalItems(), c=totalChecked(), pct=t?Math.round(c/t*100):0;
+  document.getElementById("scorePct").textContent=pct+"%";
+  document.getElementById("scoreOf").textContent=c+"/"+t;
+  document.getElementById("barFill").style.width=pct+"%";
+  document.getElementById("barLeft").textContent=c+" controles cumplidos";
+  document.getElementById("barRight").textContent=(t-c)+" pendientes";
+
+  const rl=document.getElementById("riskLabel");
+  const bar=document.getElementById("barFill");
+  const circ=document.getElementById("scoreCircle");
+
+  if(pct===0){
+    rl.textContent="Sin evaluar";
+    rl.style.cssText="background:#ff537015;color:#ff5370;border:1px solid #ff537030";
+    bar.style.background="var(--accent)";
+    circ.style.borderColor="var(--border)";
+  } else if(pct<40){
+    rl.textContent="⚠ Riesgo alto";
+    rl.style.cssText="background:#ff537015;color:#ff5370;border:1px solid #ff537030;font-weight:600";
+    bar.style.background="#ff5370";
+    circ.style.borderColor="#ff5370";
+  } else if(pct<70){
+    rl.textContent="⚠ Riesgo medio";
+    rl.style.cssText="background:#ffb34715;color:#ffb347;border:1px solid #ffb34730;font-weight:600";
+    bar.style.background="#ffb347";
+    circ.style.borderColor="#ffb347";
+  } else if(pct<90){
+    rl.textContent="✓ Riesgo bajo";
+    rl.style.cssText="background:#00e5a015;color:#00e5a0;border:1px solid #00e5a030;font-weight:600";
+    bar.style.background="var(--accent)";
+    circ.style.borderColor="var(--accent)";
+  } else {
+    rl.textContent="✓ Excelente";
+    rl.style.cssText="background:#00e5a020;color:#00e5a0;border:1px solid #00e5a050;font-weight:600";
+    bar.style.background="var(--accent)";
+    circ.style.borderColor="var(--accent)";
+  }
+  renderTabs();
+}
+
+function renderTabs(){
+  const el=document.getElementById("tabsEl");
+  el.innerHTML=domains.map(d=>{
+    const dc=d.items.filter((_,i)=>checked[d.id+i]).length;
+    const isActive=d.id===activeDomain;
+    return `<button class="tab${isActive?' active':''}" onclick="switchDomain('${d.id}')">
+      ${d.icon} ${d.label}
+      <span class="tab-count">${dc}/${d.items.length}</span>
+    </button>`;
+  }).join("");
+}
+
+function switchDomain(id){
+  activeDomain=id;
+  renderTabs();
+  renderContent();
+}
+
+function critPill(c){
+  if(c==="alta") return`<span class="pill p-alta">CRÍTICO</span>`;
+  if(c==="media") return`<span class="pill p-media">MEDIO</span>`;
+  return`<span class="pill p-baja">BAJO</span>`;
+}
+
+function renderContent(){
+  const d=domains.find(x=>x.id===activeDomain);
+  const html=`
+    <div class="domain-header">
+      <div class="domain-icon" style="background:${d.color}18;border:1px solid ${d.color}30;font-size:18px">${d.icon}</div>
+      <div>
+        <div class="domain-title">${d.label}</div>
+        <div class="domain-sub">${d.desc}</div>
+      </div>
+    </div>
+    <div class="items-list">
+      ${d.items.map((item,i)=>{
+        const key=d.id+i, ok=checked[key];
+        return`<div class="item${ok?' checked':''}" onclick="toggle('${key}')">
+          <div class="cb">${ok?'✓':''}</div>
+          <div class="item-body">
+            <div class="item-title">${item.t}</div>
+            <div class="item-pills">
+              <span class="pill p-norm">${item.norm}</span>
+              ${critPill(item.crit)}
+            </div>
+            <div class="item-hint">→ ${item.hint}</div>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`;
+  document.getElementById("contentArea").innerHTML=html;
+}
+
+function toggle(key){
+  checked[key]=!checked[key];
+  updateProgress();
+  renderContent();
+}
+
+function resetAll(){
+  if(!confirm("¿Reiniciar todos los controles?")) return;
+  Object.keys(checked).forEach(k=>delete checked[k]);
+  updateProgress();
+  renderContent();
+}
+
+function showReport(){
+  const lines=[];
+  let total=0,done=0;
+  domains.forEach(d=>{
+    const missing=[]; const ok=[];
+    d.items.forEach((item,i)=>{
+      total++;
+      if(checked[d.id+i]){done++;ok.push(item);}
+      else missing.push(item);
+    });
+    lines.push({domain:d, missing, ok});
+  });
+  const pct=Math.round(done/total*100);
+
+  let html=`<div class="report-block">
+    <h3>Resumen ejecutivo</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1rem">
+      <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
+        <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:var(--accent)">${pct}%</div>
+        <div style="font-size:11px;color:var(--muted)">Cumplimiento</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
+        <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:#00e5a0">${done}</div>
+        <div style="font-size:11px;color:var(--muted)">Cumplidos</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
+        <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:#ff5370">${total-done}</div>
+        <div style="font-size:11px;color:var(--muted)">Pendientes</div>
+      </div>
+    </div>
+  </div>`;
+
+  lines.forEach(({domain:d, missing, ok})=>{
+    if(missing.length===0) return;
+    html+=`<div class="report-block">
+      <h3>${d.icon} ${d.label} — ${ok.length}/${d.items.length} cumplidos</h3>
+      ${missing.map(item=>`
+        <div class="report-item">
+          <span class="r-bullet">✗</span>
+          <div>
+            <div style="font-weight:500">${item.t}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">${item.norm} · Prioridad: ${item.crit.toUpperCase()} · ${item.hint}</div>
+          </div>
+        </div>`).join("")}
+    </div>`;
+  });
+
+  if(total===done){
+    html+=`<div style="text-align:center;padding:2rem;color:var(--accent);font-family:var(--mono);font-size:14px">
+      ✓ Todos los controles marcados como cumplidos. ¡Excelente trabajo!
+    </div>`;
+  }
+
+  document.getElementById("report-body").innerHTML=html;
+  document.getElementById("report-modal").style.display="block";
+}
+
+function closeReport(){
+  document.getElementById("report-modal").style.display="none";
+}
+
+renderTabs();
+renderContent();
+updateProgress();
+</script>
+</body>
+</html>
